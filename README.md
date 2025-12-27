@@ -94,6 +94,12 @@ GRANT ALL PRIVILEGES ON DATABASE tifunbox_db TO <your-mac-username>;
 \q
 DATABASE_URL=postgresql://<your-mac-username>@localhost:5432/tifunbox_db
 
+psql tifunbox_db
+\dt
+
+## Prisma Studio UI
+npx prisma studio
+
 ## Project Start
 npm install
 
@@ -102,6 +108,7 @@ npx prisma generate
 
 ## Run Database Migration
 npx prisma migrate dev --name init
+npx prisma migrate dev --name add_email_otp_auth
 
 npx ts-node src/server.ts
 
@@ -153,4 +160,4 @@ docker compose exec backend npx prisma migrate dev
 
 
 
-
+Swagger docs at http://localhost:3000/api-docs
