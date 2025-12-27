@@ -44,19 +44,38 @@ enum LedgerStatus {
 
 
 model User {
-  id        String   @id @default(uuid())
-  role      UserRole
-  name      String
-  phone     String   @unique
-  email     String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  role         UserRole
+  name         String
+  email        String   @unique
+  phone        String   @unique
+  passwordHash String
+  isActive     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  otps         Otp[]
 
   kitchens  Kitchen[]
   orders    Order[]
   ledgers   EarningsLedger[]
   payouts   Payout[]
 }
+
+
+model Otp {
+  id        String   @id @default(uuid())
+  userId    String
+  code      String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+
 
 model Kitchen {
   id         String   @id @default(uuid())
