@@ -20,13 +20,17 @@ services:
     restart: always
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://tifunbox:tifunbox@db:5432/tifunbox_db
       PORT: 3000
     ports:
       - "3000:3000"
+      - "5555:5555"   # 👈 ADD THIS
     volumes:
       - .:/app
+      - /app/node_modules
     command: npm run dev
 
 volumes:
