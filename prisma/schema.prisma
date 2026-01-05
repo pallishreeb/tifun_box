@@ -96,17 +96,25 @@ model Kitchen {
   orders     Order[]
 }
 
+enum TiffinSize {
+  HALF
+  FULL
+}
+
 model MenuItem {
   id          String   @id @default(uuid())
   kitchenId   String
   name        String
   description String?
   price       Int
-  tiffinSize  String
+  tiffinSize  TiffinSize
+  imageUrl    String?
   isAvailable Boolean  @default(true)
   createdAt   DateTime @default(now())
 
   kitchen     Kitchen  @relation(fields: [kitchenId], references: [id])
+  
+  @@index([kitchenId])
 }
 
 model Order {

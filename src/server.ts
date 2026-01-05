@@ -3,7 +3,10 @@ import prisma from "./config/prisma";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import authRoutes from "./modules/auth/auth.routes";
+import kitchenRoutes from "./modules/kitchen/kitchen.routes";
+import menuRoutes from "./modules/menu/menu.routes";
 
+import { errorMiddleware } from "./middleware/error.middleware";
 const app = express();
 
 const PORT = process.env.PORT || 3000;
@@ -17,6 +20,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/kitchens", kitchenRoutes);
+app.use("/api/menu", menuRoutes);
+
 
 // Health check
 app.get("/health", async (_req, res) => {
@@ -39,7 +45,8 @@ app.use((req, res) => {
 //   res.status(500).json({ message: "Internal Server Error" });
 // });
 
-
+// ❗ MUST be last
+app.use(errorMiddleware);
 
 app.listen(PORT, () => {
   console.log("Server running on port 3000");

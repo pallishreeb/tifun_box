@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { register, verify, login } from "./auth.controller";
-
+import { register, verify, login,me } from "./auth.controller";
+import { authMiddleware } from "../../middleware/auth.middleware";
+import { requireRole } from "../../middleware/role.middleware";
 const router = Router();
 
 /**
@@ -91,4 +92,20 @@ router.post("/verify-otp", verify);
  */
 router.post("/login", login);
 
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get logged-in user info
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged-in user details
+ */
+router.get("/me", authMiddleware,  me);
+
+
 export default router;
+
