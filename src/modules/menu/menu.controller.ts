@@ -1,13 +1,16 @@
 /** @format */
-
 import { Request, Response, NextFunction } from "express";
-import { AuthenticatedRequest } from "../../types/auth-request";
-import { createMenuItem, getMyMenu, toggleMenuItem, updateMenuItem } from "./menu.service";
+import {
+  createMenuItem,
+  getMyMenu,
+  toggleMenuItem,
+  updateMenuItem,
+  getPublicMenu,
+} from "./menu.service";
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const authReq = req as AuthenticatedRequest;
-    const menu = await createMenuItem(authReq.user.userId, req.body);
+    const menu = await createMenuItem(req.body);
 
     res.json({
       success: true,
@@ -21,8 +24,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function myMenu(req: Request, res: Response, next: NextFunction) {
   try {
-    const authReq = req as AuthenticatedRequest;
-    const menu = await getMyMenu(authReq.user.userId);
+    const menu = await getMyMenu();
 
     res.json({
       success: true,
@@ -35,8 +37,7 @@ export async function myMenu(req: Request, res: Response, next: NextFunction) {
 
 export async function toggle(req: Request, res: Response, next: NextFunction) {
   try {
-    const authReq = req as AuthenticatedRequest;
-    const item = await toggleMenuItem(authReq.user.userId, req.params.id);
+    const item = await toggleMenuItem(req.params.id);
 
     res.json({
       success: true,
@@ -50,18 +51,28 @@ export async function toggle(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const authReq = req as AuthenticatedRequest;
-
-    const updatedItem = await updateMenuItem(
-      authReq.user.userId,
-      req.params.id,
-      req.body
-    );
+    const updatedItem = await updateMenuItem(req.params.id, req.body);
 
     res.json({
       success: true,
       message: "Menu item updated successfully",
       data: updatedItem,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function publicMenu(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const menu = await getPublicMenu();
+    res.json({
+      success: true,
+      data: menu,
     });
   } catch (err) {
     next(err);
