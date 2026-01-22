@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { register, verify, login,me } from "./auth.controller";
 import { authMiddleware } from "../../middleware/auth.middleware";
-import { requireRole } from "../../middleware/role.middleware";
+import { validate } from "../../middleware/validate.middleware";
+import { registerSchema, loginSchema, verifyOtpSchema } from "./auth.schema";
 const router = Router();
 
 /**
@@ -38,7 +39,7 @@ const router = Router();
  *       200:
  *         description: OTP sent to email
  */
-router.post("/register", register);
+router.post("/register",validate(registerSchema) ,register);
 
 /**
  * @swagger
@@ -64,7 +65,7 @@ router.post("/register", register);
  *       200:
  *         description: OTP verified and JWT issued
  */
-router.post("/verify-otp", verify);
+router.post("/verify-otp",validate(verifyOtpSchema) ,verify);
 
 /**
  * @swagger
@@ -90,7 +91,7 @@ router.post("/verify-otp", verify);
  *       200:
  *         description: JWT token returned
  */
-router.post("/login", login);
+router.post("/login",validate(loginSchema) ,login);
 
 /**
  * @swagger

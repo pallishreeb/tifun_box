@@ -2,29 +2,30 @@
 import prisma from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 
-export const createMenuItem = async (
-  chefId: string,
-  data: {
-    name: string;
-    description?: string;
-    price: number;
-    tiffinSize: "HALF" | "FULL";
-    imageUrl?: string;
-  }
-) => {
-  const kitchen = await prisma.kitchen.findFirst({
-    where: {
-      chefId,
-      isApproved: true,
-      isActive: true,
-    },
-  });
+/**
+ * Helper: get the single kitchen
+ */
+const getKitchen = async () => {
+  const kitchen = await prisma.kitchen.findFirst();
 
   if (!kitchen) {
-    throw new ApiError("Approved kitchen not found", 403);
+    throw new ApiError("Kitchen not found", 404);
   }
 
+  return kitchen;
+};
 
+/**
+ * Chef: Create menu item
+ */
+export const createMenuItem = async (data: {
+  name: string;
+  description?: string;
+  price: number;
+  tiffinSize: "HALF" | "FULL";
+  imageUrl?: string;
+}) => {
+  const kitchen = await getKitchen();
 
   return prisma.menuItem.create({
     data: {
@@ -38,14 +39,11 @@ export const createMenuItem = async (
   });
 };
 
-export const getMyMenu = async (chefId: string) => {
-  const kitchen = await prisma.kitchen.findFirst({
-    where: { chefId },
-  });
-
-  if (!kitchen) {
-    throw new ApiError("Kitchen not found", 404);
-  }
+/**
+ * Chef: Get all menu items
+ */
+export const getMyMenu = async () => {
+  const kitchen = await getKitchen();
 
   return prisma.menuItem.findMany({
     where: { kitchenId: kitchen.id },
@@ -53,24 +51,28 @@ export const getMyMenu = async (chefId: string) => {
   });
 };
 
-export const toggleMenuItem = async (chefId: string, menuItemId: string) => {
-  const menuItem = await prisma.menuItem.findUnique({
+/**
+ * Chef: Toggle availability
+ */
+export const toggleMenuItem = async (menuItemId: string) => {
+  const item = await prisma.menuItem.findUnique({
     where: { id: menuItemId },
-    include: { kitchen: true },
   });
 
-  if (!menuItem || menuItem.kitchen.chefId !== chefId) {
+  if (!item) {
     throw new ApiError("Menu item not found", 404);
   }
 
   return prisma.menuItem.update({
     where: { id: menuItemId },
-    data: { isAvailable: !menuItem.isAvailable },
+    data: { isAvailable: !item.isAvailable },
   });
 };
 
+/**
+ * Chef: Update menu item
+ */
 export const updateMenuItem = async (
-  chefId: string,
   menuItemId: string,
   data: {
     name?: string;
@@ -79,34 +81,40 @@ export const updateMenuItem = async (
     tiffinSize?: "HALF" | "FULL";
     imageUrl?: string;
     isAvailable?: boolean;
-  }
+  },
 ) => {
-  const menuItem = await prisma.menuItem.findUnique({
+  const item = await prisma.menuItem.findUnique({
     where: { id: menuItemId },
-    include: { kitchen: true },
   });
 
-  if (!menuItem) {
+  if (!item) {
     throw new ApiError("Menu item not found", 404);
-  }
-
-  if (menuItem.kitchen.chefId !== chefId) {
-    throw new ApiError("You are not allowed to update this menu item", 403);
-  }
-
-  if (!menuItem.kitchen.isApproved) {
-    throw new ApiError("Kitchen is not approved yet", 400);
   }
 
   return prisma.menuItem.update({
     where: { id: menuItemId },
     data: {
-      name: data.name ?? menuItem.name,
-      description: data.description ?? menuItem.description,
-      price: data.price ?? menuItem.price,
-      tiffinSize: data.tiffinSize ?? menuItem.tiffinSize,
-      imageUrl: data.imageUrl ?? menuItem.imageUrl,
-      isAvailable: data.isAvailable ?? menuItem.isAvailable,
+      name: data.name ?? item.name,
+      description: data.description ?? item.description,
+      price: data.price ?? item.price,
+      tiffinSize: data.tiffinSize ?? item.tiffinSize,
+      imageUrl: data.imageUrl ?? item.imageUrl,
+      isAvailable: data.isAvailable ?? item.isAvailable,
     },
+  });
+};
+
+/**
+ * Public: Customer menu (available items only)
+ */
+export const getPublicMenu = async () => {
+  const kitchen = await getKitchen();
+
+  return prisma.menuItem.findMany({
+    where: {
+      kitchenId: kitchen.id,
+      isAvailable: true,
+    },
+    orderBy: { createdAt: "desc" },
   });
 };

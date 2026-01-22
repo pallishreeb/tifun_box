@@ -5,7 +5,7 @@ import { swaggerSpec } from "./config/swagger";
 import authRoutes from "./modules/auth/auth.routes";
 import kitchenRoutes from "./modules/kitchen/kitchen.routes";
 import menuRoutes from "./modules/menu/menu.routes";
-
+import cartRoutes from "./modules/cart/cart.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 const app = express();
 
@@ -22,6 +22,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/auth", authRoutes);
 app.use("/api/kitchens", kitchenRoutes);
 app.use("/api/menu", menuRoutes);
+app.use("/api/cart", cartRoutes);
 
 
 // Health check

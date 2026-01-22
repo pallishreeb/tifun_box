@@ -1,17 +1,30 @@
 /** @format */
 import { Router } from "express";
-import { create, myMenu, toggle, update } from "./menu.controller";
+import { create, myMenu, toggle, update, publicMenu } from "./menu.controller";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
-
+import { validate } from "../../middleware/validate.middleware";
+import { createMenuSchema, updateMenuSchema } from "./menu.schema";
 const router = Router();
+
+/**
+ * @swagger
+ * /api/menu:
+ *   get:
+ *     summary: View menu (Customer)
+ *     tags: [Customer, Menu]
+ *     responses:
+ *       200:
+ *         description: List of available menu items
+ */
+router.get("/", publicMenu);
 
 /**
  * @swagger
  * /api/menu:
  *   post:
  *     summary: Create menu item (Chef only)
- *     tags: [Menu]
+ *     tags: [Chef, Menu]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -37,14 +50,20 @@ const router = Router();
  *       200:
  *         description: Menu item created
  */
-router.post("/", authMiddleware, requireRole("CHEF"), create);
+router.post(
+  "/",
+  authMiddleware,
+  requireRole("CHEF"),
+  validate(createMenuSchema),
+  create,
+);
 
 /**
  * @swagger
  * /api/menu/me:
  *   get:
  *     summary: Get my menu items (Chef only)
- *     tags: [Menu]
+ *     tags: [Chef, Menu]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -58,7 +77,7 @@ router.get("/me", authMiddleware, requireRole("CHEF"), myMenu);
  * /api/menu/{id}:
  *   put:
  *     summary: Update menu item (Chef only)
- *     tags: [Menu]
+ *     tags: [Chef, Menu]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -90,14 +109,20 @@ router.get("/me", authMiddleware, requireRole("CHEF"), myMenu);
  *       200:
  *         description: Menu item updated successfully
  */
-router.put("/:id", authMiddleware, requireRole("CHEF"), update);
+router.put(
+  "/:id",
+  authMiddleware,
+  requireRole("CHEF"),
+  validate(updateMenuSchema),
+  update,
+);
 
 /**
  * @swagger
  * /api/menu/{id}/toggle:
  *   patch:
  *     summary: Enable / disable menu item (Chef only)
- *     tags: [Menu]
+ *     tags: [Chef, Menu]
  *     security:
  *       - bearerAuth: []
  *     parameters:
