@@ -15,7 +15,35 @@ const router = Router();
  *   get:
  *     summary: Get kitchen (Public)
  *     tags: [Kitchen]
+ *     responses:
+ *       200:
+ *         description: Kitchen details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                       example: "TifunBox Central Kitchen"
+ *                     description:
+ *                       type: string
+ *                       example: "Main kitchen for daily tiffin service"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *       404:
+ *         description: Kitchen not found
  */
+
 router.get("/", get);
 
 /**
@@ -23,9 +51,33 @@ router.get("/", get);
  * /api/kitchen:
  *   post:
  *     summary: Create kitchen (Admin only)
- *     tags: [Admin, Kitchen]
+ *     tags: [Kitchen]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "TifunBox Central Kitchen"
+ *               description:
+ *                 type: string
+ *                 example: "Main kitchen for daily tiffin service"
+ *     responses:
+ *       200:
+ *         description: Kitchen created successfully
+ *       409:
+ *         description: Kitchen already exists
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin only
  */
 router.post(
   "/",
@@ -35,14 +87,37 @@ router.post(
   create,
 );
 
+
 /**
  * @swagger
  * /api/kitchen:
  *   put:
  *     summary: Update kitchen (Admin only)
- *     tags: [Admin, Kitchen]
+ *     tags: [Kitchen]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Updated Kitchen Name"
+ *               description:
+ *                 type: string
+ *                 example: "Updated description"
+ *     responses:
+ *       200:
+ *         description: Kitchen updated successfully
+ *       404:
+ *         description: Kitchen not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin only
  */
 router.put(
   "/",
@@ -51,5 +126,6 @@ router.put(
   validate(updateKitchenSchema),
   update,
 );
+
 
 export default router;

@@ -16,6 +16,7 @@ export const validate =
       });
       next();
     } catch (err: any) {
+      console.log(err);
          next(
            new ApiError(err.errors?.[0]?.message || "Validation failed", 400),
          );

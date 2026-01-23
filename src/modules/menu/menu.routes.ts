@@ -12,7 +12,7 @@ const router = Router();
  * /api/menu:
  *   get:
  *     summary: View menu (Customer)
- *     tags: [Customer, Menu]
+ *     tags: [Menu]
  *     responses:
  *       200:
  *         description: List of available menu items
@@ -24,7 +24,7 @@ router.get("/", publicMenu);
  * /api/menu:
  *   post:
  *     summary: Create menu item (Chef only)
- *     tags: [Chef, Menu]
+ *     tags: [Menu]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -63,7 +63,7 @@ router.post(
  * /api/menu/me:
  *   get:
  *     summary: Get my menu items (Chef only)
- *     tags: [Chef, Menu]
+ *     tags: [Menu]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -77,7 +77,7 @@ router.get("/me", authMiddleware, requireRole("CHEF"), myMenu);
  * /api/menu/{id}:
  *   put:
  *     summary: Update menu item (Chef only)
- *     tags: [Chef, Menu]
+ *     tags: [Menu]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -122,7 +122,7 @@ router.put(
  * /api/menu/{id}/toggle:
  *   patch:
  *     summary: Enable / disable menu item (Chef only)
- *     tags: [Chef, Menu]
+ *     tags: [Menu]
  *     security:
  *       - bearerAuth: []
  *     parameters:
