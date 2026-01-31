@@ -1,12 +1,20 @@
 /** @format */
+
 import { Router } from "express";
-import { create, myMenu, toggle, update, publicMenu } from "./menu.controller";
+import {
+  create,
+  myMenu,
+  toggle,
+  update,
+  publicMenu,
+  uploadMenuImage,
+} from "./menu.controller";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
 import { validate } from "../../middleware/validate.middleware";
 import { createMenuSchema, updateMenuSchema } from "./menu.schema";
 import { upload } from "../../middleware/upload.middleware";
-import { uploadMenuImage } from "./menu.controller";
+
 const router = Router();
 
 /**
@@ -35,22 +43,51 @@ router.get("/", publicMenu);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, price, tiffinSize]
+ *             required:
+ *               - name
+ *               - price
+ *               - categoryId
+ *               - foodType
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Paneer Thali
  *               description:
  *                 type: string
+ *                 example: North Indian thali with paneer curry
  *               price:
  *                 type: number
+ *                 example: 180
+ *               categoryId:
+ *                 type: string
+ *                 example: c3b1d0a4-xxxx
+ *               foodType:
+ *                 type: string
+ *                 enum: [VEG, NON_VEG]
  *               tiffinSize:
  *                 type: string
  *                 enum: [HALF, FULL]
+ *               nutrition:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [key, value]
+ *                   properties:
+ *                     key:
+ *                       type: string
+ *                       example: Calories
+ *                     value:
+ *                       type: string
+ *                       example: "350"
+ *                     unit:
+ *                       type: string
+ *                       example: kcal
  *               imageUrl:
  *                 type: string
+ *                 example: https://storage.googleapis.com/bucket/menu/img.png
  *     responses:
  *       200:
- *         description: Menu item created
+ *         description: Menu item created successfully
  */
 router.post(
   "/",
@@ -70,7 +107,7 @@ router.post(
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of menu items
+ *         description: List of menu items created by the chef
  */
 router.get("/me", authMiddleware, requireRole("CHEF"), myMenu);
 
@@ -102,11 +139,16 @@ router.get("/me", authMiddleware, requireRole("CHEF"), myMenu);
  *                 type: string
  *               price:
  *                 type: number
+ *               categoryId:
+ *                 type: string
+ *               foodType:
+ *                 type: string
+ *                 enum: [VEG, NON_VEG]
  *               tiffinSize:
  *                 type: string
  *                 enum: [HALF, FULL]
- *               imageUrl:
- *                 type: string
+ *               isAvailable:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Menu item updated successfully
@@ -131,6 +173,7 @@ router.put(
  *       - in: path
  *         name: id
  *         required: true
+ *         description: Menu item ID
  *         schema:
  *           type: string
  *     responses:
@@ -138,6 +181,7 @@ router.put(
  *         description: Menu availability updated
  */
 router.patch("/:id/toggle", authMiddleware, requireRole("CHEF"), toggle);
+
 /**
  * @swagger
  * /api/menu/upload-image:
@@ -168,12 +212,10 @@ router.patch("/:id/toggle", authMiddleware, requireRole("CHEF"), toggle);
  *               properties:
  *                 success:
  *                   type: boolean
+ *                   example: true
  *                 imageUrl:
  *                   type: string
- *       400:
- *         description: Invalid request
- *       401:
- *         description: Unauthorized
+ *                   example: https://storage.googleapis.com/bucket/menu/xyz.png
  */
 router.post(
   "/upload-image",

@@ -2,13 +2,16 @@
 
 import { Request, Response, NextFunction } from "express";
 import * as service from "./address.service";
+import { AuthenticatedRequest } from "../../types/auth-request";
 
-export const create = async (req: Request, res: Response, next: NextFunction) => {
+export const create = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const address = await service.createAddress(
-      req.user!.userId,
-      req.body,
-    );
+    const authReq = req as AuthenticatedRequest;
+    const address = await service.createAddress(authReq.user!.userId, req.body);
 
     res.status(201).json({
       success: true,
@@ -22,17 +25,23 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
 
 export const list = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const addresses = await service.getMyAddresses(req.user!.userId);
+    const authReq = req as AuthenticatedRequest;
+    const addresses = await service.getMyAddresses(authReq.user!.userId);
     res.json({ success: true, data: addresses });
   } catch (err) {
     next(err);
   }
 };
 
-export const update = async (req: Request, res: Response, next: NextFunction) => {
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const address = await service.updateAddress(
-      req.user!.userId,
+      authReq.user!.userId,
       req.params.id,
       req.body,
     );
@@ -47,9 +56,14 @@ export const update = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-export const remove = async (req: Request, res: Response, next: NextFunction) => {
+export const remove = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    await service.deleteAddress(req.user!.userId, req.params.id);
+    const authReq = req as AuthenticatedRequest;
+    await service.deleteAddress(authReq.user!.userId, req.params.id);
     res.json({ success: true, message: "Address deleted" });
   } catch (err) {
     next(err);

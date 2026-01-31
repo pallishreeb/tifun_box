@@ -1,19 +1,57 @@
+/** @format */
 import { Request, Response, NextFunction } from "express";
-import * as service from "./category.service";
+import {
+  createCategory,
+  getCategories,
+  updateCategory,
+} from "./category.service";
 
-export const create = async (req: Request, res: Response, next: NextFunction) => {
+export const create = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const category = await service.createCategory(req.body);
-    res.status(201).json({ success: true, data: category });
+    const category = await createCategory(req.body);
+
+    res.json({
+      success: true,
+      data: category,
+    });
   } catch (err) {
     next(err);
   }
 };
 
-export const list = async (_: Request, res: Response, next: NextFunction) => {
+export const list = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const categories = await service.getCategories();
-    res.json({ success: true, data: categories });
+    const categories = await getCategories();
+
+    res.json({
+      success: true,
+      data: categories,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const category = await updateCategory(req.params.id, req.body);
+
+    res.json({
+      success: true,
+      data: category,
+    });
   } catch (err) {
     next(err);
   }
