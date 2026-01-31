@@ -5,6 +5,8 @@ import { authMiddleware } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
 import { validate } from "../../middleware/validate.middleware";
 import { createMenuSchema, updateMenuSchema } from "./menu.schema";
+import { upload } from "../../middleware/upload.middleware";
+import { uploadMenuImage } from "./menu.controller";
 const router = Router();
 
 /**
@@ -136,5 +138,49 @@ router.put(
  *         description: Menu availability updated
  */
 router.patch("/:id/toggle", authMiddleware, requireRole("CHEF"), toggle);
+/**
+ * @swagger
+ * /api/menu/upload-image:
+ *   post:
+ *     summary: Upload menu image (Chef only)
+ *     tags: [Menu]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - image
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 imageUrl:
+ *                   type: string
+ *       400:
+ *         description: Invalid request
+ *       401:
+ *         description: Unauthorized
+ */
+router.post(
+  "/upload-image",
+  authMiddleware,
+  requireRole("CHEF"),
+  upload.single("image"),
+  uploadMenuImage,
+);
 
 export default router;
